@@ -17,3 +17,12 @@ option(UOPT_BUILD_EXAMPLES "Build example programs" ON)
 if(UOPT_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+# ------------------------------------------------------------------------------
+# Tests
+# ------------------------------------------------------------------------------
+
+option(UOPT_BUILD_TESTS "Build test suite" ON)
+if(UOPT_BUILD_TESTS)
+    add_subdirectory(test)
+endif()
