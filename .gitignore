@@ -1,2 +1,6 @@
 /bazel-*
 /build
+compile-commands.json
+
+# clangd
+.cache

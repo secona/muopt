@@ -75,7 +75,7 @@ public:
   Parser(int argc, char **argv) : argc_(argc), argv_(argv), index_(1) {}
 
   Result next() {
-    if (index_ > argc_)
+    if (index_ >= argc_)
       return Result(Err{});
 
     std::string_view arg = argv_[index_++];
