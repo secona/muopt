@@ -1,5 +1,5 @@
 module(
-    name = "nopt",
+    name = "uopt",
     version = "0.1.0",
 )
 
