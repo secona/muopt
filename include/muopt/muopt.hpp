@@ -1,11 +1,11 @@
-#ifndef UOPT_UOPT_HPP_
-#define UOPT_UOPT_HPP_
+#ifndef MUOPT_MUOPT_HPP_
+#define MUOPT_MUOPT_HPP_
 
 #include <cassert>
 #include <string_view>
 #include <variant>
 
-namespace uopt {
+namespace muopt {
 
 class Arg {
 public:
@@ -95,6 +95,6 @@ private:
   int index_;
 };
 
-} // namespace uopt
+} // namespace muopt
 
-#endif // UOPT_UOPT_HPP_
+#endif // MUOPT_MUOPT_HPP_

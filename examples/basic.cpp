@@ -1,3 +1,3 @@
-#include "uopt/uopt.hpp"
+#include "muopt/muopt.hpp"
 
 int main(int argc, char **argv) { return 0; }

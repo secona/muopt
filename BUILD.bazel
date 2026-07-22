@@ -1,8 +1,8 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-	name = "uopt",
-	hdrs = ["include/uopt/uopt.hpp"],
+	name = "muopt",
+	hdrs = ["include/muopt/muopt.hpp"],
 	strip_include_prefix = "include",
 	visibility = ["//visibility:public"],
 )
