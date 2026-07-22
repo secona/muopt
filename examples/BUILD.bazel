@@ -1,0 +1,10 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+[
+	cc_binary(
+		name = src[:-4],
+		srcs = [src],
+		deps = ["//:nopt"],
+	)
+	for src in glob(["*.cpp"])
+]
