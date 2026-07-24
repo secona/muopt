@@ -35,3 +35,21 @@ TEST_CASE("-o -p") {
   REQUIRE(parser.next()->is_short('p'));
   CHECK_EQ(parser.next(), std::nullopt);
 }
+
+TEST_CASE("-opq") {
+  MAKE_PARSER(parser, "-opq");
+
+  REQUIRE(parser.next()->is_short('o'));
+  REQUIRE(parser.next()->is_short('p'));
+  REQUIRE(parser.next()->is_short('q'));
+  CHECK_EQ(parser.next(), std::nullopt);
+}
+
+TEST_CASE("-opq") {
+  MAKE_PARSER(parser, "-opqrst");
+
+  REQUIRE(parser.next()->is_short('o'));
+  REQUIRE(parser.next()->is_short('p'));
+  CHECK_EQ(parser.get_value(), "qrst");
+  CHECK_EQ(parser.next(), std::nullopt);
+}

@@ -58,12 +58,29 @@ private:
 };
 
 class Parser {
+private:
+  enum class State {
+    None,
+    Shorts,
+  };
+
 public:
-  Parser(int argc, char **argv) : argc_(argc), argv_(argv), index_(1) {}
+  Parser(int argc, char **argv)
+      : argc_(argc), argv_(argv), index_(1), state_(State::None) {}
 
   std::optional<Arg> next() {
     if (buffer_.has_value())
       return std::exchange(buffer_, std::nullopt);
+
+    if (state_ == State::Shorts) {
+      if (!pending_val_.empty()) {
+        auto arg = Arg::make_short(pending_val_.front());
+        pending_val_.remove_prefix(1);
+        return arg;
+      }
+
+      state_ = State::None;
+    }
 
     if (index_ >= argc_)
       return std::nullopt;
@@ -87,8 +104,10 @@ public:
     if (arg_str.front() == '-') {
       std::string_view raw = arg_str.substr(1);
 
-      if (raw.length() > 1)
+      if (raw.length() > 1) {
         pending_val_ = raw.substr(1);
+        state_ = State::Shorts;
+      }
 
       return Arg::make_short(raw.front());
     }
@@ -116,6 +135,8 @@ private:
   int argc_;
   char **argv_;
   int index_;
+
+  State state_;
 
   std::string_view pending_val_;
   std::optional<Arg> buffer_;
