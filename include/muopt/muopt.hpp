@@ -106,6 +106,8 @@ public:
 
       if (raw.length() > 1) {
         pending_val_ = raw.substr(1);
+        if (pending_val_.front() == '=')
+          pending_val_.remove_prefix(1);
         state_ = State::Shorts;
       }
 
