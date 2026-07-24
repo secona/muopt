@@ -62,6 +62,7 @@ private:
   enum class State {
     None,
     Shorts,
+    DoubleDashed,
   };
 
 public:
@@ -87,8 +88,16 @@ public:
 
     std::string_view arg_str = argv_[index_++];
 
+    if (state_ == State::DoubleDashed)
+      return Arg::make_value(arg_str);
+
     // flush pendingval
     pending_val_ = {};
+
+    if (arg_str == "--") {
+      state_ = State::DoubleDashed;
+      return next();
+    }
 
     // match `--<option>`
     if (arg_str.rfind("--", 0) == 0 && arg_str.length() > 2) {

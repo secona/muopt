@@ -158,3 +158,19 @@ TEST_CASE("file1.txt -v file2.txt") {
   CHECK_EQ(parser.next()->get_value(), "file2.txt");
   CHECK_EQ(parser.next(), std::nullopt);
 }
+
+TEST_CASE("--") {
+  MAKE_PARSER(parser, "--");
+
+  CHECK_EQ(parser.next(), std::nullopt);
+  CHECK_EQ(parser.get_value(), "");
+}
+
+TEST_CASE("-- --help -c help") {
+  MAKE_PARSER(parser, "--", "--help", "-c", "help");
+
+  CHECK_EQ(parser.next()->get_value(), "--help");
+  CHECK_EQ(parser.next()->get_value(), "-c");
+  CHECK_EQ(parser.next()->get_value(), "help");
+  CHECK_EQ(parser.next(), std::nullopt);
+}
