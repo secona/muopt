@@ -14,7 +14,6 @@ endif()
 
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "*.cpp")
 
-enable_testing()
 foreach(src ${TEST_SOURCES})
     get_filename_component(name ${src} NAME_WE)
     add_executable(${name} ${src})

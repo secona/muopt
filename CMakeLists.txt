@@ -24,5 +24,6 @@ endif()
 
 option(MUOPT_BUILD_TESTS "Build test suite" ON)
 if(MUOPT_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(test)
 endif()
