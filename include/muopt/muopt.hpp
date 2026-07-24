@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 namespace muopt {
 
@@ -70,6 +71,9 @@ public:
   Parser(int argc, char **argv) : argc_(argc), argv_(argv), index_(1) {}
 
   std::optional<Arg> next() {
+    if (buffer_.has_value())
+      return std::exchange(buffer_, std::nullopt);
+
     if (index_ >= argc_)
       return std::nullopt;
 
@@ -78,12 +82,16 @@ public:
     // match `--<option>`
     if (arg.rfind("--", 0) == 0 && arg.length() > 2) {
       std::string_view opt = arg.substr(2);
-      std::optional<Arg> val = next();
+      std::optional<Arg> peek = next();
 
       auto arg = Arg::make_long(opt);
-      if (val.has_value() && val->is_value()) {
-        arg.value_ = val->get_value();
-        arg.kind_ = arg.kind_ | Arg::Kind::Value;
+      if (peek.has_value()) {
+        if (peek->is_value()) {
+          arg.value_ = peek->get_value();
+          arg.kind_ = arg.kind_ | Arg::Kind::Value;
+        } else {
+          buffer_ = std::move(peek);
+        }
       }
       return arg;
     }
@@ -91,12 +99,16 @@ public:
     // match `-<option>`
     if (arg.front() == '-') {
       std::string_view opt = arg.substr(1, 2);
-      std::optional<Arg> val = next();
+      std::optional<Arg> peek = next();
 
       auto arg = Arg::make_short(opt.front());
-      if (val.has_value() && val->is_value()) {
-        arg.value_ = val->get_value();
-        arg.kind_ = arg.kind_ | Arg::Kind::Value;
+      if (peek.has_value()) {
+        if (peek->is_value()) {
+          arg.value_ = peek->get_value();
+          arg.kind_ = arg.kind_ | Arg::Kind::Value;
+        } else {
+          buffer_ = std::move(peek);
+        }
       }
       return arg;
     }
@@ -110,6 +122,8 @@ private:
   int argc_;
   char **argv_;
   int index_;
+
+  std::optional<Arg> buffer_;
 };
 
 } // namespace muopt

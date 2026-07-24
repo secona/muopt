@@ -17,3 +17,10 @@ TEST_CASE("--option value") {
   REQUIRE(arg->is_long("option"));
   CHECK_EQ(arg->get_value(), "value");
 }
+
+TEST_CASE("--option --option2") {
+  MAKE_PARSER(parser, "--option", "--option2");
+
+  REQUIRE(parser.next()->is_long("option"));
+  REQUIRE(parser.next()->is_long("option2"));
+}
