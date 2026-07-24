@@ -87,6 +87,9 @@ public:
 
     std::string_view arg_str = argv_[index_++];
 
+    // flush pendingval
+    pending_val_ = {};
+
     // match `--<option>`
     if (arg_str.rfind("--", 0) == 0 && arg_str.length() > 2) {
       std::string_view raw = arg_str.substr(2);

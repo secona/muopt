@@ -52,6 +52,14 @@ TEST_CASE("--option --option2") {
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
+TEST_CASE("--option=value --option2") {
+  MAKE_PARSER(parser, "--option=value", "--option2");
+
+  REQUIRE(parser.next()->is_long("option"));
+  REQUIRE(parser.next()->is_long("option2"));
+  CHECK_EQ(parser.next(), std::nullopt);
+}
+
 TEST_CASE("-o") {
   MAKE_PARSER(parser, "-o");
 
