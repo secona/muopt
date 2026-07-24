@@ -139,23 +139,23 @@ TEST_CASE("-opq") {
 TEST_CASE("value") {
   MAKE_PARSER(parser, "value");
 
-  CHECK_EQ(parser.next()->get_value(), "value");
+  CHECK_EQ(parser.next()->as_str(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("-") {
   MAKE_PARSER(parser, "-");
 
-  CHECK_EQ(parser.next()->get_value(), "-");
+  CHECK_EQ(parser.next()->as_str(), "-");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("file1.txt -v file2.txt") {
   MAKE_PARSER(parser, "file1.txt", "-v", "file2.txt");
 
-  CHECK_EQ(parser.next()->get_value(), "file1.txt");
+  CHECK_EQ(parser.next()->as_str(), "file1.txt");
   REQUIRE(parser.next()->is_short('v'));
-  CHECK_EQ(parser.next()->get_value(), "file2.txt");
+  CHECK_EQ(parser.next()->as_str(), "file2.txt");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -169,8 +169,8 @@ TEST_CASE("--") {
 TEST_CASE("-- --help -c help") {
   MAKE_PARSER(parser, "--", "--help", "-c", "help");
 
-  CHECK_EQ(parser.next()->get_value(), "--help");
-  CHECK_EQ(parser.next()->get_value(), "-c");
-  CHECK_EQ(parser.next()->get_value(), "help");
+  CHECK_EQ(parser.next()->as_str(), "--help");
+  CHECK_EQ(parser.next()->as_str(), "-c");
+  CHECK_EQ(parser.next()->as_str(), "help");
   CHECK_EQ(parser.next(), std::nullopt);
 }

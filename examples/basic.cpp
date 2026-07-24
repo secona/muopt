@@ -16,11 +16,11 @@ int main(int argc, char **argv) {
     }
 
     if (arg->is_long())
-      std::cout << "Found long: " << arg->get_long() << "\n";
+      std::cout << "Found long: " << arg->as_str() << "\n";
     if (arg->is_short())
-      std::cout << "Found short: " << arg->get_short() << "\n";
+      std::cout << "Found short: " << arg->as_char() << "\n";
     if (arg->is_plain())
-      std::cout << "Found value: " << arg->get_value() << "\n";
+      std::cout << "Found value: " << arg->as_str() << "\n";
   }
 
   return 0;

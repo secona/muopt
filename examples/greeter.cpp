@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   while (auto arg = parser.next()) {
     if (arg->is_plain()) {
       if (!greeting.has_value())
-        greeting = arg->get_value();
+        greeting = arg->as_str();
     }
 
     if (arg->is_short('n') || arg->is_long("name")) {

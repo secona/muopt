@@ -43,16 +43,12 @@ public:
   bool is_short(char c) { return is_short() && short_ == c; }
   bool is_long(std::string_view n) { return is_long() && str_ == n; }
 
-  char get_short() {
+  char as_char() {
     assert(is_short());
     return short_;
   }
-  std::string_view get_long() {
-    assert(is_long());
-    return str_;
-  }
-  std::string_view get_value() {
-    assert(is_plain());
+  std::string_view as_str() {
+    assert(is_long() || is_plain());
     return str_;
   }
 
@@ -154,7 +150,7 @@ public:
     if (!maybe_value.has_value())
       return {}; // TODO: maybe return error?
     if (maybe_value->is_plain())
-      return maybe_value->get_value();
+      return maybe_value->as_str();
 
     buffer_ = std::move(maybe_value);
     return {};
