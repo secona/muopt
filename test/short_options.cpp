@@ -3,8 +3,16 @@
 #include "muopt/muopt.hpp"
 #include "utils.hpp"
 
-TEST_CASE("-<option>") {
+TEST_CASE("-o") {
   MAKE_PARSER(parser, "-o");
 
   REQUIRE(parser.next()->is_short('o'));
+}
+
+TEST_CASE("-o value") {
+  MAKE_PARSER(parser, "-o", "value");
+
+  auto arg = parser.next();
+  REQUIRE(arg->is_short('o'));
+  CHECK_EQ(arg->get_value(), "value");
 }

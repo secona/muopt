@@ -91,7 +91,14 @@ public:
     // match `-<option>`
     if (arg.front() == '-') {
       std::string_view opt = arg.substr(1, 2);
-      return Arg::make_short(opt.front());
+      std::optional<Arg> val = next();
+
+      auto arg = Arg::make_short(opt.front());
+      if (val.has_value() && val->is_value()) {
+        arg.value_ = val->get_value();
+        arg.kind_ = arg.kind_ | Arg::Kind::Value;
+      }
+      return arg;
     }
 
     // match `<value>`
