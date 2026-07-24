@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   std::optional<std::string> ask;
 
   while (auto arg = parser.next()) {
-    if (arg->is_value()) {
+    if (arg->is_plain()) {
       if (!greeting.has_value())
         greeting = arg->get_value();
     }

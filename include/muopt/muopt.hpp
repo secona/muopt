@@ -14,7 +14,7 @@ public:
   enum class Kind {
     Short,
     Long,
-    Value,
+    Plain,
   };
 
   static Arg make_short(char c) {
@@ -29,16 +29,16 @@ public:
     a.str_ = n;
     return a;
   }
-  static Arg make_value(std::string_view v) {
+  static Arg make_plain(std::string_view v) {
     Arg a;
-    a.kind_ = Kind::Value;
+    a.kind_ = Kind::Plain;
     a.str_ = v;
     return a;
   }
 
   bool is_short() { return kind_ == Kind::Short; }
   bool is_long() { return kind_ == Kind::Long; }
-  bool is_value() { return kind_ == Kind::Value; }
+  bool is_plain() { return kind_ == Kind::Plain; }
 
   bool is_short(char c) { return is_short() && short_ == c; }
   bool is_long(std::string_view n) { return is_long() && str_ == n; }
@@ -52,7 +52,7 @@ public:
     return str_;
   }
   std::string_view get_value() {
-    assert(is_value());
+    assert(is_plain());
     return str_;
   }
 
@@ -98,7 +98,7 @@ public:
     std::string_view arg_str = argv_[index_++];
 
     if (state_ == State::DoubleDashed)
-      return Arg::make_value(arg_str);
+      return Arg::make_plain(arg_str);
 
     // flush pendingval
     pending_val_ = {};
@@ -127,7 +127,7 @@ public:
 
       // argument is only `-`
       if (raw.empty())
-        return Arg::make_value(arg_str);
+        return Arg::make_plain(arg_str);
 
       if (raw.length() > 1) {
         pending_val_ = raw.substr(1);
@@ -140,7 +140,7 @@ public:
     }
 
     // match `<value>`
-    return Arg::make_value(arg_str);
+    return Arg::make_plain(arg_str);
   }
 
   std::string_view get_value() {
@@ -153,7 +153,7 @@ public:
     auto maybe_value = next();
     if (!maybe_value.has_value())
       return {}; // TODO: maybe return error?
-    if (maybe_value->is_value())
+    if (maybe_value->is_plain())
       return maybe_value->get_value();
 
     buffer_ = std::move(maybe_value);

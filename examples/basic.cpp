@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
       std::cout << "Found long: " << arg->get_long() << "\n";
     if (arg->is_short())
       std::cout << "Found short: " << arg->get_short() << "\n";
-    if (arg->is_value())
+    if (arg->is_plain())
       std::cout << "Found value: " << arg->get_value() << "\n";
   }
 
