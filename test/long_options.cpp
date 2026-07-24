@@ -18,6 +18,14 @@ TEST_CASE("--option value") {
   CHECK_EQ(arg->get_value(), "value");
 }
 
+TEST_CASE("--option=value") {
+  MAKE_PARSER(parser, "--option=value");
+
+  auto arg = parser.next();
+  REQUIRE(arg->is_long("option"));
+  CHECK_EQ(arg->get_value(), "value");
+}
+
 TEST_CASE("--option --option2") {
   MAKE_PARSER(parser, "--option", "--option2");
 

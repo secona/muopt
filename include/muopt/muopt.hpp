@@ -81,10 +81,22 @@ public:
 
     // match `--<option>`
     if (arg_str.rfind("--", 0) == 0 && arg_str.length() > 2) {
-      std::string_view opt = arg_str.substr(2);
+      std::string_view raw = arg_str.substr(2);
+
+      size_t eq = raw.find('=');
+      if (eq != std::string_view::npos) {
+        std::string_view opt = raw.substr(0, eq);
+        std::string_view val = raw.substr(eq + 1);
+
+        Arg arg = Arg::make_long(opt);
+        arg.value_ = val;
+        arg.kind_ = arg.kind_ | Arg::Kind::Value;
+        return arg;
+      }
+
       std::optional<Arg> peek = next();
 
-      auto arg = Arg::make_long(opt);
+      auto arg = Arg::make_long(raw);
       if (peek.has_value()) {
         if (peek->is_value()) {
           arg.value_ = peek->get_value();
