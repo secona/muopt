@@ -76,7 +76,9 @@ public:
       return Arg::make_short(opt.front());
     }
 
-    return std::nullopt;
+    // match `<value>`
+    std::string_view opt = arg;
+    return Arg::make_value(opt);
   }
 
 private:
