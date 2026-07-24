@@ -3,6 +3,10 @@
 `muopt` is a header-only C++17 micro-library for argument parsing. Its design is inspired by
 [Lexopt](https://crates.io/crates/lexopt).
 
+## Examples
+
+See the [examples](./examples) directory for usage examples.
+
 ## Motivation
 
 In one of my Rust projects, I used Lexopt and loved it. When working on a C++ project, I tried looking for
