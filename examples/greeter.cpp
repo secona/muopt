@@ -23,12 +23,12 @@ int main(int argc, char **argv) {
 
     if (arg->is_short('n') || arg->is_long("name")) {
       if (!name.has_value())
-        name = parser.get_value();
+        name = parser.arg_value();
     }
 
     if (arg->is_short('a') || arg->is_long("ask")) {
       if (!ask.has_value())
-        ask = parser.get_value();
+        ask = parser.arg_value();
     }
   }
 

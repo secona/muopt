@@ -139,7 +139,7 @@ public:
     return Arg::make_plain(arg_str);
   }
 
-  std::string_view get_value() {
+  std::string_view arg_value() {
     if (!pending_val_.empty()) {
       std::string_view res = pending_val_;
       pending_val_ = {};

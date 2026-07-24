@@ -23,7 +23,7 @@ TEST_CASE("--option value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
-  CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.arg_value(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -32,7 +32,7 @@ TEST_CASE("--option=value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
-  CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.arg_value(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -64,7 +64,7 @@ TEST_CASE("--option=value=value2") {
   MAKE_PARSER(parser, "--option=value=value2");
 
   REQUIRE(parser.next()->is_long("option"));
-  CHECK_EQ(parser.get_value(), "value=value2");
+  CHECK_EQ(parser.arg_value(), "value=value2");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -80,7 +80,7 @@ TEST_CASE("-o") {
 
   REQUIRE(parser.next()->is_short('o'));
   // TODO: decide return type
-  REQUIRE(parser.get_value().empty());
+  REQUIRE(parser.arg_value().empty());
 }
 
 TEST_CASE("-ovalue") {
@@ -88,7 +88,7 @@ TEST_CASE("-ovalue") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
-  CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.arg_value(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -97,7 +97,7 @@ TEST_CASE("-o value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
-  CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.arg_value(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -106,7 +106,7 @@ TEST_CASE("-o=value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
-  CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.arg_value(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -132,7 +132,7 @@ TEST_CASE("-opq") {
 
   REQUIRE(parser.next()->is_short('o'));
   REQUIRE(parser.next()->is_short('p'));
-  CHECK_EQ(parser.get_value(), "qrst");
+  CHECK_EQ(parser.arg_value(), "qrst");
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
@@ -163,7 +163,7 @@ TEST_CASE("--") {
   MAKE_PARSER(parser, "--");
 
   CHECK_EQ(parser.next(), std::nullopt);
-  CHECK_EQ(parser.get_value(), "");
+  CHECK_EQ(parser.arg_value(), "");
 }
 
 TEST_CASE("-- --help -c help") {
