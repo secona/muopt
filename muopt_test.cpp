@@ -10,167 +10,169 @@
     n##_argv[i] = const_cast<char *>(n##_cargv[i]);                            \
   muopt::Parser n(n##_argc, n##_argv)
 
+#define MU_LONG(n) CHECK(parser.next()->is_long(n))
+#define MU_SHORT(n) CHECK(parser.next()->is_short(n))
+#define MU_PLAIN(n) CHECK(parser.next()->is_plain(n))
+
+#define MU_LONG_WITH_VALUE(n, v)                                               \
+  MU_LONG(n);                                                                  \
+  CHECK_EQ(parser.arg_value(), v)
+
+#define MU_SHORT_WITH_VALUE(n, v)                                              \
+  MU_SHORT(n);                                                                 \
+  CHECK_EQ(parser.arg_value(), v)
+
+#define MU_LONG_NO_VALUE(n) MU_LONG_WITH_VALUE(n, std::nullopt)
+#define MU_SHORT_NO_VALUE(n) MU_SHORT_WITH_VALUE(n, std::nullopt)
+
+#define MU_END() CHECK_EQ(parser.next(), std::nullopt)
+
 TEST_CASE("--option") {
   MAKE_PARSER(parser, "--option");
 
-  auto result = parser.next();
-  REQUIRE(result->is_long("option"));
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_NO_VALUE("option");
+  MU_END();
 }
 
 TEST_CASE("--option value") {
   MAKE_PARSER(parser, "--option", "value");
 
-  auto arg = parser.next();
-  REQUIRE(arg->is_long("option"));
-  CHECK_EQ(parser.arg_value(), "value");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_WITH_VALUE("option", "value");
+  MU_END();
 }
 
 TEST_CASE("--option=value") {
   MAKE_PARSER(parser, "--option=value");
 
-  auto arg = parser.next();
-  REQUIRE(arg->is_long("option"));
-  CHECK_EQ(parser.arg_value(), "value");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_WITH_VALUE("option", "value");
+  MU_END();
 }
 
 TEST_CASE("--option=") {
   MAKE_PARSER(parser, "--option=");
 
-  auto arg = parser.next();
-  REQUIRE(arg->is_long("option"));
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_WITH_VALUE("option", "");
+  MU_END();
 }
 
 TEST_CASE("--option --option2") {
   MAKE_PARSER(parser, "--option", "--option2");
 
-  REQUIRE(parser.next()->is_long("option"));
-  REQUIRE(parser.next()->is_long("option2"));
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_NO_VALUE("option");
+  MU_LONG_NO_VALUE("option2");
+  MU_END();
 }
 
 TEST_CASE("--option=value --option2") {
   MAKE_PARSER(parser, "--option=value", "--option2");
 
-  REQUIRE(parser.next()->is_long("option"));
-  REQUIRE(parser.next()->is_long("option2"));
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_WITH_VALUE("option", "value");
+  MU_LONG_NO_VALUE("option2");
+  MU_END();
 }
 
 TEST_CASE("--option=value=value2") {
   MAKE_PARSER(parser, "--option=value=value2");
 
-  REQUIRE(parser.next()->is_long("option"));
-  CHECK_EQ(parser.arg_value(), "value=value2");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_LONG_WITH_VALUE("option", "value=value2");
+  MU_END();
 }
 
 TEST_CASE("-o") {
   MAKE_PARSER(parser, "-o");
 
-  REQUIRE(parser.next()->is_short('o'));
-  CHECK_EQ(parser.next(), std::nullopt);
-}
-
-TEST_CASE("-o") {
-  MAKE_PARSER(parser, "-o");
-
-  REQUIRE(parser.next()->is_short('o'));
-  // TODO: decide return type
-  REQUIRE(parser.arg_value().empty());
+  MU_SHORT_NO_VALUE('o');
+  MU_END();
 }
 
 TEST_CASE("-ovalue") {
   MAKE_PARSER(parser, "-ovalue");
 
-  auto arg = parser.next();
-  REQUIRE(arg->is_short('o'));
-  CHECK_EQ(parser.arg_value(), "value");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_SHORT_WITH_VALUE('o', "value");
+  MU_END();
 }
 
 TEST_CASE("-o value") {
   MAKE_PARSER(parser, "-o", "value");
 
-  auto arg = parser.next();
-  REQUIRE(arg->is_short('o'));
-  CHECK_EQ(parser.arg_value(), "value");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_SHORT_WITH_VALUE('o', "value");
+  MU_END();
 }
 
 TEST_CASE("-o=value") {
   MAKE_PARSER(parser, "-o=value");
 
-  auto arg = parser.next();
-  REQUIRE(arg->is_short('o'));
-  CHECK_EQ(parser.arg_value(), "value");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_SHORT_WITH_VALUE('o', "value");
+  MU_END();
 }
 
 TEST_CASE("-o -p") {
   MAKE_PARSER(parser, "-o", "-p");
 
-  REQUIRE(parser.next()->is_short('o'));
-  REQUIRE(parser.next()->is_short('p'));
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_SHORT_NO_VALUE('o');
+  MU_SHORT_NO_VALUE('p');
+  MU_END();
 }
 
 TEST_CASE("-opq") {
   MAKE_PARSER(parser, "-opq");
 
-  REQUIRE(parser.next()->is_short('o'));
-  REQUIRE(parser.next()->is_short('p'));
-  REQUIRE(parser.next()->is_short('q'));
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_SHORT('o');
+  MU_SHORT('p');
+  MU_SHORT('q');
+  MU_END();
 }
 
-TEST_CASE("-opq") {
+TEST_CASE("-opqrst") {
   MAKE_PARSER(parser, "-opqrst");
 
-  REQUIRE(parser.next()->is_short('o'));
-  REQUIRE(parser.next()->is_short('p'));
-  CHECK_EQ(parser.arg_value(), "qrst");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_SHORT('o');
+  MU_SHORT('p');
+  MU_SHORT_WITH_VALUE('q', "rst");
+  MU_END();
 }
 
 TEST_CASE("value") {
   MAKE_PARSER(parser, "value");
 
-  CHECK_EQ(parser.next()->as_str(), "value");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_PLAIN("value");
+  MU_END();
 }
 
 TEST_CASE("-") {
   MAKE_PARSER(parser, "-");
 
-  CHECK_EQ(parser.next()->as_str(), "-");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_PLAIN("-");
+  MU_END();
 }
 
 TEST_CASE("file1.txt -v file2.txt") {
   MAKE_PARSER(parser, "file1.txt", "-v", "file2.txt");
 
-  CHECK_EQ(parser.next()->as_str(), "file1.txt");
-  REQUIRE(parser.next()->is_short('v'));
-  CHECK_EQ(parser.next()->as_str(), "file2.txt");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_PLAIN("file1.txt");
+  MU_SHORT('v');
+  MU_PLAIN("file2.txt");
+  MU_END();
 }
 
 TEST_CASE("--") {
   MAKE_PARSER(parser, "--");
 
-  CHECK_EQ(parser.next(), std::nullopt);
-  CHECK_EQ(parser.arg_value(), "");
+  MU_END();
 }
 
 TEST_CASE("-- --help -c help") {
   MAKE_PARSER(parser, "--", "--help", "-c", "help");
 
-  CHECK_EQ(parser.next()->as_str(), "--help");
-  CHECK_EQ(parser.next()->as_str(), "-c");
-  CHECK_EQ(parser.next()->as_str(), "help");
-  CHECK_EQ(parser.next(), std::nullopt);
+  MU_PLAIN("--help");
+  MU_PLAIN("-c");
+  MU_PLAIN("help");
+  MU_END();
+}
+
+TEST_CASE("-o=") {
+  MAKE_PARSER(parser, "-o=");
+
+  MU_SHORT_WITH_VALUE('o', "");
+  MU_END();
 }

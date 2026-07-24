@@ -42,6 +42,7 @@ public:
 
   bool is_short(char c) { return is_short() && short_ == c; }
   bool is_long(std::string_view n) { return is_long() && str_ == n; }
+  bool is_plain(std::string_view n) { return is_plain() && str_ == n; }
 
   char as_char() {
     assert(is_short());
@@ -79,9 +80,11 @@ public:
       return std::exchange(buffer_, std::nullopt);
 
     if (state_ == State::Shorts) {
-      if (!pending_val_.empty()) {
-        auto arg = Arg::make_short(pending_val_.front());
-        pending_val_.remove_prefix(1);
+      if (pending_val_.has_value() && !pending_val_->empty()) {
+        auto arg = Arg::make_short(pending_val_->front());
+        pending_val_->remove_prefix(1);
+        if (pending_val_->empty())
+          pending_val_ = std::nullopt;
         return arg;
       }
 
@@ -97,7 +100,7 @@ public:
       return Arg::make_plain(arg_str);
 
     // flush pendingval
-    pending_val_ = {};
+    pending_val_ = std::nullopt;
 
     if (arg_str == "--") {
       state_ = State::DoubleDashed;
@@ -127,9 +130,10 @@ public:
 
       if (raw.length() > 1) {
         pending_val_ = raw.substr(1);
-        if (pending_val_.front() == '=')
-          pending_val_.remove_prefix(1);
-        state_ = State::Shorts;
+        if (pending_val_->front() == '=')
+          pending_val_->remove_prefix(1);
+        else
+          state_ = State::Shorts;
       }
 
       return Arg::make_short(raw.front());
@@ -139,10 +143,10 @@ public:
     return Arg::make_plain(arg_str);
   }
 
-  std::string_view arg_value() {
-    if (!pending_val_.empty()) {
-      std::string_view res = pending_val_;
-      pending_val_ = {};
+  std::optional<std::string_view> arg_value() {
+    if (pending_val_.has_value()) {
+      auto res = *pending_val_;
+      pending_val_ = std::nullopt;
       return res;
     }
 
@@ -163,7 +167,7 @@ private:
 
   State state_;
 
-  std::string_view pending_val_;
+  std::optional<std::string_view> pending_val_;
   std::optional<Arg> buffer_;
 };
 
