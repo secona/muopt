@@ -53,6 +53,8 @@ public:
     return value_;
   }
 
+  friend class Parser;
+
 private:
   Kind kind_;
   char short_;
@@ -76,7 +78,14 @@ public:
     // match `--<option>`
     if (arg.rfind("--", 0) == 0 && arg.length() > 2) {
       std::string_view opt = arg.substr(2);
-      return Arg::make_long(opt);
+      std::optional<Arg> val = next();
+
+      auto arg = Arg::make_long(opt);
+      if (val.has_value() && val->is_value()) {
+        arg.value_ = val->get_value();
+        arg.kind_ = arg.kind_ | Arg::Kind::Value;
+      }
+      return arg;
     }
 
     // match `-<option>`

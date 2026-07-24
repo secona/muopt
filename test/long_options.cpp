@@ -2,7 +2,7 @@
 #include "doctest/doctest.h"
 #include "muopt/muopt.hpp"
 
-TEST_CASE("--<option>") {
+TEST_CASE("--option") {
   int argc = 2;
   char *argv[] = {(char *)"exe", (char *)"--option"};
   muopt::Parser parser(argc, argv);
@@ -12,10 +12,12 @@ TEST_CASE("--<option>") {
   REQUIRE(result->is_long("option"));
 }
 
-TEST_CASE("-<option>") {
-  int argc = 2;
-  char *argv[] = {(char *)"exe", (char *)"-o"};
+TEST_CASE("--option value") {
+  int argc = 3;
+  char *argv[] = {(char *)"exe", (char *)"--option", (char*)"value"};
   muopt::Parser parser(argc, argv);
 
-  REQUIRE(parser.next()->is_short('o'));
+  auto arg = parser.next();
+  REQUIRE(arg->is_long("option"));
+  CHECK_EQ(arg->get_value(), "value");
 }
