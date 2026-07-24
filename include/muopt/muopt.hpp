@@ -70,6 +70,12 @@ public:
       return Arg::make_long(opt);
     }
 
+    // match `-<option>`
+    if (arg.front() == '-') {
+      std::string_view opt = arg.substr(1, 2);
+      return Arg::make_short(opt.front());
+    }
+
     return std::nullopt;
   }
 

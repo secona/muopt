@@ -17,6 +17,8 @@ int main(int argc, char **argv) {
 
     if (arg->is_long())
       std::cout << "Found long: " << arg->get_long() << "\n";
+    if (arg->is_short())
+      std::cout << "Found short: " << arg->get_short() << "\n";
   }
 
   return 0;
