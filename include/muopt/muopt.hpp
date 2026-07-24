@@ -77,11 +77,11 @@ public:
     if (index_ >= argc_)
       return std::nullopt;
 
-    std::string_view arg = argv_[index_++];
+    std::string_view arg_str = argv_[index_++];
 
     // match `--<option>`
-    if (arg.rfind("--", 0) == 0 && arg.length() > 2) {
-      std::string_view opt = arg.substr(2);
+    if (arg_str.rfind("--", 0) == 0 && arg_str.length() > 2) {
+      std::string_view opt = arg_str.substr(2);
       std::optional<Arg> peek = next();
 
       auto arg = Arg::make_long(opt);
@@ -97,8 +97,8 @@ public:
     }
 
     // match `-<option>`
-    if (arg.front() == '-') {
-      std::string_view opt = arg.substr(1, 2);
+    if (arg_str.front() == '-') {
+      std::string_view opt = arg_str.substr(1, 2);
       std::optional<Arg> peek = next();
 
       auto arg = Arg::make_short(opt.front());
@@ -114,8 +114,7 @@ public:
     }
 
     // match `<value>`
-    std::string_view opt = arg;
-    return Arg::make_value(opt);
+    return Arg::make_value(arg_str);
   }
 
 private:
