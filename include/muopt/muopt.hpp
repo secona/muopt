@@ -104,6 +104,10 @@ public:
     if (arg_str.front() == '-') {
       std::string_view raw = arg_str.substr(1);
 
+      // argument is only `-`
+      if (raw.empty())
+        return Arg::make_value(arg_str);
+
       if (raw.length() > 1) {
         pending_val_ = raw.substr(1);
         if (pending_val_.front() == '=')

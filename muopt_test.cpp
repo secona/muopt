@@ -118,3 +118,10 @@ TEST_CASE("value") {
   CHECK_EQ(parser.next()->get_value(), "value");
   CHECK_EQ(parser.next(), std::nullopt);
 }
+
+TEST_CASE("-") {
+  MAKE_PARSER(parser, "-");
+
+  CHECK_EQ(parser.next()->get_value(), "-");
+  CHECK_EQ(parser.next(), std::nullopt);
+}
