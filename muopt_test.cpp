@@ -60,6 +60,14 @@ TEST_CASE("--option=value --option2") {
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
+TEST_CASE("--option=value=value2") {
+  MAKE_PARSER(parser, "--option=value=value2");
+
+  REQUIRE(parser.next()->is_long("option"));
+  CHECK_EQ(parser.get_value(), "value=value2");
+  CHECK_EQ(parser.next(), std::nullopt);
+}
+
 TEST_CASE("-o") {
   MAKE_PARSER(parser, "-o");
 
@@ -131,5 +139,14 @@ TEST_CASE("-") {
   MAKE_PARSER(parser, "-");
 
   CHECK_EQ(parser.next()->get_value(), "-");
+  CHECK_EQ(parser.next(), std::nullopt);
+}
+
+TEST_CASE("file1.txt -v file2.txt") {
+  MAKE_PARSER(parser, "file1.txt", "-v", "file2.txt");
+
+  CHECK_EQ(parser.next()->get_value(), "file1.txt");
+  REQUIRE(parser.next()->is_short('v'));
+  CHECK_EQ(parser.next()->get_value(), "file2.txt");
   CHECK_EQ(parser.next(), std::nullopt);
 }
