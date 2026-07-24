@@ -9,19 +9,14 @@
 int main(int argc, char **argv) {
   muopt::Parser p(argc, argv);
 
-  while (true) {
-    auto a = p.next();
-    if (a.is_err())
-      break;
-
-    auto arg = a.arg();
-    if (arg.is_long("help")) {
+  while (auto arg = p.next()) {
+    if (arg->is_long("help")) {
       std::cout << "μopt\n";
       break;
     }
 
-    if (arg.is_long())
-      std::cout << "Found long: " << arg.get_long() << "\n";
+    if (arg->is_long())
+      std::cout << "Found long: " << arg->get_long() << "\n";
   }
 
   return 0;

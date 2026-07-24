@@ -2,6 +2,7 @@
 #define MUOPT_MUOPT_HPP_
 
 #include <cassert>
+#include <optional>
 #include <string_view>
 #include <variant>
 
@@ -53,30 +54,13 @@ private:
       : kind_(k), short_(c), long_(n), value_(v) {}
 };
 
-class Err {};
-
-class Result {
-public:
-  Result(Arg arg) : v_(arg) {}
-  Result(Err err) : v_(err) {}
-
-  bool is_arg() const { return std::holds_alternative<Arg>(v_); }
-  bool is_err() const { return std::holds_alternative<Err>(v_); }
-
-  Arg arg() const { return std::get<Arg>(v_); }
-  Err err() const { return std::get<Err>(v_); }
-
-private:
-  std::variant<Arg, Err> v_;
-};
-
 class Parser {
 public:
   Parser(int argc, char **argv) : argc_(argc), argv_(argv), index_(1) {}
 
-  Result next() {
+  std::optional<Arg> next() {
     if (index_ >= argc_)
-      return Result(Err{});
+      return std::nullopt;
 
     std::string_view arg = argv_[index_++];
 
@@ -86,7 +70,7 @@ public:
       return Arg::make_long(opt);
     }
 
-    return Result(Err{});
+    return std::nullopt;
   }
 
 private:

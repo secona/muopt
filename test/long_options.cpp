@@ -9,5 +9,5 @@ TEST_CASE("--<option>") {
 
   auto result = parser.next();
 
-  REQUIRE(result.arg().is_long("option"));
+  REQUIRE(result->is_long("option"));
 }
