@@ -2,19 +2,27 @@
 #define MUOPT_MUOPT_HPP_
 
 #include <cassert>
+#include <cstdint>
 #include <optional>
 #include <string_view>
-#include <variant>
 
 namespace muopt {
 
 class Arg {
 public:
   enum class Kind {
-    Short,
-    Long,
-    Value,
+    Short = 1 << 0,
+    Long = 1 << 1,
+    Value = 1 << 2,
   };
+
+  friend constexpr Kind operator|(Kind a, Kind b) {
+    return static_cast<Kind>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+  }
+
+  friend constexpr Kind operator&(Kind a, Kind b) {
+    return static_cast<Kind>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+  }
 
   static Arg make_short(char c) { return Arg(Kind::Short, c, {}, {}); }
   static Arg make_long(std::string_view n) {
@@ -24,13 +32,14 @@ public:
     return Arg(Kind::Value, {}, {}, v);
   }
 
-  bool is_short() { return kind_ == Kind::Short; }
-  bool is_short(char c) { return is_short() && short_ == c; }
-  bool is_long() { return kind_ == Kind::Long; }
-  bool is_long(std::string_view n) { return is_long() && long_ == n; }
-  bool is_value() { return kind_ == Kind::Value; }
+  bool is_kind(Kind kind) { return (kind_ & kind) == kind; }
+  bool is_short() { return is_kind(Kind::Short); }
+  bool is_long() { return is_kind(Kind::Long); }
+  bool is_value() { return is_kind(Kind::Value); }
 
-  Kind get_kind() { return kind_; }
+  bool is_short(char c) { return is_short() && short_ == c; }
+  bool is_long(std::string_view n) { return is_long() && long_ == n; }
+
   char get_short() {
     assert(is_short());
     return short_;
