@@ -15,7 +15,7 @@ TEST_CASE("--option value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
-  CHECK_EQ(arg->get_value(), "value");
+  CHECK_EQ(parser.get_value(), "value");
 }
 
 TEST_CASE("--option=value") {
@@ -23,7 +23,7 @@ TEST_CASE("--option=value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
-  CHECK_EQ(arg->get_value(), "value");
+  CHECK_EQ(parser.get_value(), "value");
 }
 
 TEST_CASE("--option --option2") {

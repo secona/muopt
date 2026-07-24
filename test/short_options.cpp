@@ -14,7 +14,7 @@ TEST_CASE("-ovalue") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
-  CHECK_EQ(arg->get_value(), "value");
+  CHECK_EQ(parser.get_value(), "value");
 }
 
 TEST_CASE("-o value") {
@@ -22,7 +22,7 @@ TEST_CASE("-o value") {
 
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
-  CHECK_EQ(arg->get_value(), "value");
+  CHECK_EQ(parser.get_value(), "value");
 }
 
 TEST_CASE("-o -p") {

@@ -12,18 +12,10 @@ namespace muopt {
 class Arg {
 public:
   enum class Kind {
-    Short = 1 << 0,
-    Long = 1 << 1,
-    Value = 1 << 2,
+    Short,
+    Long,
+    Value,
   };
-
-  friend constexpr Kind operator|(Kind a, Kind b) {
-    return static_cast<Kind>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
-  }
-
-  friend constexpr Kind operator&(Kind a, Kind b) {
-    return static_cast<Kind>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
-  }
 
   static Arg make_short(char c) { return Arg(Kind::Short, c, {}, {}); }
   static Arg make_long(std::string_view n) {
@@ -33,10 +25,9 @@ public:
     return Arg(Kind::Value, {}, {}, v);
   }
 
-  bool is_kind(Kind kind) { return (kind_ & kind) == kind; }
-  bool is_short() { return is_kind(Kind::Short); }
-  bool is_long() { return is_kind(Kind::Long); }
-  bool is_value() { return is_kind(Kind::Value); }
+  bool is_short() { return kind_ == Kind::Short; }
+  bool is_long() { return kind_ == Kind::Long; }
+  bool is_value() { return kind_ == Kind::Value; }
 
   bool is_short(char c) { return is_short() && short_ == c; }
   bool is_long(std::string_view n) { return is_long() && long_ == n; }
@@ -85,56 +76,40 @@ public:
 
       size_t eq = raw.find('=');
       if (eq != std::string_view::npos) {
-        std::string_view opt = raw.substr(0, eq);
-        std::string_view val = raw.substr(eq + 1);
-
-        Arg arg = Arg::make_long(opt);
-        arg.value_ = val;
-        arg.kind_ = arg.kind_ | Arg::Kind::Value;
-        return arg;
+        pending_val_ = raw.substr(eq + 1);
+        return Arg::make_long(raw.substr(0, eq));
       }
 
-      std::optional<Arg> peek = next();
-
-      auto arg = Arg::make_long(raw);
-      if (peek.has_value()) {
-        if (peek->is_value()) {
-          arg.value_ = peek->get_value();
-          arg.kind_ = arg.kind_ | Arg::Kind::Value;
-        } else {
-          buffer_ = std::move(peek);
-        }
-      }
-      return arg;
+      return Arg::make_long(raw);
     }
 
     // match `-<option>`
     if (arg_str.front() == '-') {
       std::string_view raw = arg_str.substr(1);
 
-      auto arg = Arg::make_short(raw.front());
+      if (raw.length() > 1)
+        pending_val_ = raw.substr(1);
 
-      if (raw.length() == 1) {
-        std::optional<Arg> peek = next();
-        if (peek.has_value()) {
-          if (peek->is_value()) {
-            arg.value_ = peek->get_value();
-            arg.kind_ = arg.kind_ | Arg::Kind::Value;
-          } else {
-            buffer_ = std::move(peek);
-          }
-        }
-        return arg;
-      }
-
-      std::string_view val = raw.substr(1);
-      arg.value_ = val;
-      arg.kind_ = arg.kind_ | Arg::Kind::Value;
-      return arg;
+      return Arg::make_short(raw.front());
     }
 
     // match `<value>`
     return Arg::make_value(arg_str);
+  }
+
+  std::string_view get_value() {
+    if (!pending_val_.empty()) {
+      std::string_view res = pending_val_;
+      pending_val_ = {};
+      return res;
+    }
+
+    auto maybe_value = next();
+    if (maybe_value->is_value())
+      return maybe_value->get_value();
+
+    buffer_ = std::move(maybe_value);
+    return {};
   }
 
 private:
@@ -142,6 +117,7 @@ private:
   char **argv_;
   int index_;
 
+  std::string_view pending_val_;
   std::optional<Arg> buffer_;
 };
 
