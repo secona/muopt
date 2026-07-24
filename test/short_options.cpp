@@ -9,6 +9,14 @@ TEST_CASE("-o") {
   REQUIRE(parser.next()->is_short('o'));
 }
 
+TEST_CASE("-ovalue") {
+  MAKE_PARSER(parser, "-o", "value");
+
+  auto arg = parser.next();
+  REQUIRE(arg->is_short('o'));
+  CHECK_EQ(arg->get_value(), "value");
+}
+
 TEST_CASE("-o value") {
   MAKE_PARSER(parser, "-o", "value");
 

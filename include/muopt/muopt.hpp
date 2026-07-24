@@ -110,18 +110,26 @@ public:
 
     // match `-<option>`
     if (arg_str.front() == '-') {
-      std::string_view opt = arg_str.substr(1, 2);
-      std::optional<Arg> peek = next();
+      std::string_view raw = arg_str.substr(1);
 
-      auto arg = Arg::make_short(opt.front());
-      if (peek.has_value()) {
-        if (peek->is_value()) {
-          arg.value_ = peek->get_value();
-          arg.kind_ = arg.kind_ | Arg::Kind::Value;
-        } else {
-          buffer_ = std::move(peek);
+      auto arg = Arg::make_short(raw.front());
+
+      if (raw.length() == 1) {
+        std::optional<Arg> peek = next();
+        if (peek.has_value()) {
+          if (peek->is_value()) {
+            arg.value_ = peek->get_value();
+            arg.kind_ = arg.kind_ | Arg::Kind::Value;
+          } else {
+            buffer_ = std::move(peek);
+          }
         }
+        return arg;
       }
+
+      std::string_view val = raw.substr(1);
+      arg.value_ = val;
+      arg.kind_ = arg.kind_ | Arg::Kind::Value;
       return arg;
     }
 
