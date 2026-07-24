@@ -133,6 +133,8 @@ public:
     }
 
     auto maybe_value = next();
+    if (!maybe_value.has_value())
+      return {}; // TODO: maybe return error?
     if (maybe_value->is_value())
       return maybe_value->get_value();
 

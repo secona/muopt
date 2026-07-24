@@ -75,6 +75,14 @@ TEST_CASE("-o") {
   CHECK_EQ(parser.next(), std::nullopt);
 }
 
+TEST_CASE("-o") {
+  MAKE_PARSER(parser, "-o");
+
+  REQUIRE(parser.next()->is_short('o'));
+  // TODO: decide return type
+  REQUIRE(parser.get_value().empty());
+}
+
 TEST_CASE("-ovalue") {
   MAKE_PARSER(parser, "-ovalue");
 
