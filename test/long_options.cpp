@@ -1,21 +1,17 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 #include "muopt/muopt.hpp"
+#include "utils.hpp"
 
 TEST_CASE("--option") {
-  int argc = 2;
-  char *argv[] = {(char *)"exe", (char *)"--option"};
-  muopt::Parser parser(argc, argv);
+  MAKE_PARSER(parser, "--option");
 
   auto result = parser.next();
-
   REQUIRE(result->is_long("option"));
 }
 
 TEST_CASE("--option value") {
-  int argc = 3;
-  char *argv[] = {(char *)"exe", (char *)"--option", (char*)"value"};
-  muopt::Parser parser(argc, argv);
+  MAKE_PARSER(parser, "--option", "value");
 
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
