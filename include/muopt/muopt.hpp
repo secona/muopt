@@ -17,12 +17,23 @@ public:
     Value,
   };
 
-  static Arg make_short(char c) { return Arg(Kind::Short, c, {}, {}); }
+  static Arg make_short(char c) {
+    Arg a;
+    a.kind_ = Kind::Short;
+    a.short_ = c;
+    return a;
+  }
   static Arg make_long(std::string_view n) {
-    return Arg(Kind::Long, {}, n, {});
+    Arg a;
+    a.kind_ = Kind::Long;
+    a.str_ = n;
+    return a;
   }
   static Arg make_value(std::string_view v) {
-    return Arg(Kind::Value, {}, {}, v);
+    Arg a;
+    a.kind_ = Kind::Value;
+    a.str_ = v;
+    return a;
   }
 
   bool is_short() { return kind_ == Kind::Short; }
@@ -30,7 +41,7 @@ public:
   bool is_value() { return kind_ == Kind::Value; }
 
   bool is_short(char c) { return is_short() && short_ == c; }
-  bool is_long(std::string_view n) { return is_long() && long_ == n; }
+  bool is_long(std::string_view n) { return is_long() && str_ == n; }
 
   char get_short() {
     assert(is_short());
@@ -38,11 +49,11 @@ public:
   }
   std::string_view get_long() {
     assert(is_long());
-    return long_;
+    return str_;
   }
   std::string_view get_value() {
     assert(is_value());
-    return value_;
+    return str_;
   }
 
   friend class Parser;
@@ -50,11 +61,9 @@ public:
 private:
   Kind kind_;
   char short_;
-  std::string_view long_;
-  std::string_view value_;
+  std::string_view str_;
 
-  Arg(Kind k, char c, std::string_view n, std::string_view v)
-      : kind_(k), short_(c), long_(n), value_(v) {}
+  Arg() = default;
 };
 
 class Parser {
