@@ -8,6 +8,7 @@ TEST_CASE("--option") {
 
   auto result = parser.next();
   REQUIRE(result->is_long("option"));
+  CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("--option value") {
@@ -16,6 +17,7 @@ TEST_CASE("--option value") {
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
   CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("--option=value") {
@@ -24,6 +26,7 @@ TEST_CASE("--option=value") {
   auto arg = parser.next();
   REQUIRE(arg->is_long("option"));
   CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("--option --option2") {
@@ -31,4 +34,5 @@ TEST_CASE("--option --option2") {
 
   REQUIRE(parser.next()->is_long("option"));
   REQUIRE(parser.next()->is_long("option2"));
+  CHECK_EQ(parser.next(), std::nullopt);
 }

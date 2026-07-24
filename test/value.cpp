@@ -7,4 +7,5 @@ TEST_CASE("value") {
   MAKE_PARSER(parser, "value");
 
   CHECK_EQ(parser.next()->get_value(), "value");
+  CHECK_EQ(parser.next(), std::nullopt);
 }

@@ -7,6 +7,7 @@ TEST_CASE("-o") {
   MAKE_PARSER(parser, "-o");
 
   REQUIRE(parser.next()->is_short('o'));
+  CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("-ovalue") {
@@ -15,6 +16,7 @@ TEST_CASE("-ovalue") {
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
   CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("-o value") {
@@ -23,6 +25,7 @@ TEST_CASE("-o value") {
   auto arg = parser.next();
   REQUIRE(arg->is_short('o'));
   CHECK_EQ(parser.get_value(), "value");
+  CHECK_EQ(parser.next(), std::nullopt);
 }
 
 TEST_CASE("-o -p") {
@@ -30,4 +33,5 @@ TEST_CASE("-o -p") {
 
   REQUIRE(parser.next()->is_short('o'));
   REQUIRE(parser.next()->is_short('p'));
+  CHECK_EQ(parser.next(), std::nullopt);
 }
