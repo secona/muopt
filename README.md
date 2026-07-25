@@ -33,8 +33,8 @@ See the [examples](./examples) directory for more usage examples.
 
 ## Design
 
-`muopt` acts more like a tokenizer than it is a parser; it yields Shorts, Longs, and Plains in the order they appear, with no coupling
-between them.
+In muopt, options are values are both just arguments. Whether it is treated as an option or a value depends on how it interacts with
+the parser, the `-` and `--` prefix determines the kind and not some coupling implementation.
 
 1. The parser is created by instantiating `muopt::Parser` with `argc` and `argv`.
 2. `next()` returns the next argument as a Short, Long, or Plain.
