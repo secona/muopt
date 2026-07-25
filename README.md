@@ -3,6 +3,32 @@
 `muopt` is a header-only C++17 micro-library for argument parsing. Its design is inspired by
 [Lexopt](https://crates.io/crates/lexopt).
 
+## Integration
+
+<details>
+  <summary>CMake (FetchContent)</summary>
+  
+  ```cmake
+  include(FetchContent)
+  FetchContent_Declare(
+      muopt
+      GIT_REPOSITORY https://github.com/secona/muopt.git
+      GIT_TAG main
+  )
+  FetchContent_MakeAvailable(muopt)
+  target_link_libraries(program PRIVATE muopt::muopt)
+  ```
+</details>
+
+<details>
+  <summary>CMake (vendored)</summary>
+
+  ```cmake
+  add_subdirectory(vendor/muopt)
+  target_link_libraries(program PRIVATE muopt::muopt)
+  ```
+</details>
+
 ## Examples
 
 See the [examples](./examples) directory for usage examples.
