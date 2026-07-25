@@ -18,8 +18,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (i == size || data[i] == '\0') {
       size_t len = i - start;
       if (len > 0) {
-        storage.emplace_back(
-            reinterpret_cast<const char *>(data + start), len);
+        storage.emplace_back(reinterpret_cast<const char *>(data + start), len);
         args.push_back(storage.back().c_str());
       }
       start = i + 1;
