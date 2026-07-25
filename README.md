@@ -29,6 +29,35 @@
   ```
 </details>
 
+<details>
+  <summary>Bazel (Bzlmod)</summary>
+
+  ```bazel
+  # in MODULE.bazel
+
+  bazel_dep(name = "muopt")
+  
+  git_override(
+      module_name = "muopt",
+      commit = "bedd3f76720c9790b0fd3175f8e28eaab3c3c13e", # change as needed
+      remote = "https://github.com/secona/muopt.git",
+  )
+  ```
+</details>
+
+<details>
+  <summary>Bazel</summary>
+
+  ```bazel
+  new_git_repository(
+      name = "muopt",
+      commit = "bedd3f76720c9790b0fd3175f8e28eaab3c3c13e", # change as needed
+      init_submodules = False,
+      remote = "https://github.com/secona/muopt.git",
+  )
+  ```
+</details>
+
 ## Examples
 
 See the [examples](./examples) directory for usage examples.
