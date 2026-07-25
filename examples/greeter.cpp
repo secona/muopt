@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
   std::optional<std::string> name;
   std::optional<std::string> ask;
 
-  while (auto arg = parser.next()) {
+  while (std::optional<muopt::Arg> arg = parser.next()) {
     if (arg->is_plain()) {
       if (!greeting.has_value())
         greeting = arg->as_str();
