@@ -17,6 +17,9 @@ The following command line options are supported.
 ## Examples
 
 ```cpp
+#include "muopt/muopt.hpp"
+#include <iostream>
+
 int main(int argc, char **argv) {
   muopt::Parser parser(argc, argv);
 
