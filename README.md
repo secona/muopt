@@ -20,7 +20,7 @@ The following command line options are supported.
 int main(int argc, char **argv) {
   muopt::Parser parser(argc, argv);
 
-  while (auto arg = parser.next()) {
+  while (std::optional<muopt::Arg> arg = parser.next()) {
     if (arg->is_long("help"))
       std::cout << "usage: example [--input FILE]\n";
     if (arg->is_long("input"))
