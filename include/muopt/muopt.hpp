@@ -2,9 +2,21 @@
 #define MUOPT_MUOPT_HPP_
 
 #include <cassert>
+#include <cstdlib>
 #include <optional>
 #include <string_view>
 #include <utility>
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+
+#include <shellapi.h>
+#include <string>
+#include <vector>
+#endif
 
 namespace muopt {
 
@@ -65,6 +77,23 @@ private:
   Arg() : kind_(Kind::None), short_('\0'), str_() {}
 };
 
+#ifdef _WIN32
+namespace detail {
+inline std::string wide_to_utf8(LPCWSTR wstr) {
+  int utf8len =
+      WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
+  if (utf8len <= 0)
+    return {};
+
+  std::string utf8(utf8len, '\0');
+  WideCharToMultiByte(CP_UTF8, 0, wstr, -1, utf8.data(), utf8len, nullptr,
+                      nullptr);
+  utf8.resize(utf8len - 1);
+  return utf8;
+}
+} // namespace detail
+#endif
+
 class Parser {
 private:
   enum class State {
@@ -75,7 +104,31 @@ private:
 
 public:
   Parser(int argc, char **argv)
-      : argc_(argc), argv_(argv), index_(1), state_(State::None) {}
+      : argc_(argc), argv_(argv), index_(1), state_(State::None) {
+#ifdef _WIN32
+    // Use the wide command line for the argv supplied by the CRT. This keeps
+    // Unicode arguments intact on Windows while still honoring custom argv
+    // arrays, which are useful for embedding and testing.
+    if (argv == __argv) {
+      int wide_argc = 0;
+      LPWSTR *wargv = CommandLineToArgvW(GetCommandLineW(), &wide_argc);
+      if (!wargv)
+        return;
+
+      wide_args_.reserve(wide_argc);
+      wide_argv_.reserve(wide_argc);
+      for (int i = 0; i < wide_argc; ++i) {
+        wide_args_.push_back(detail::wide_to_utf8(wargv[i]));
+        wide_argv_.push_back(wide_args_.back().data());
+      }
+
+      LocalFree(wargv);
+
+      argc_ = wide_argc;
+      argv_ = wide_argv_.data();
+    }
+#endif
+  }
 
 private:
   std::optional<Arg> next_impl() {
@@ -178,6 +231,10 @@ private:
 
   std::optional<std::string_view> pending_val_;
   std::optional<Arg> buffer_;
+#ifdef _WIN32
+  std::vector<std::string> wide_args_;
+  std::vector<char *> wide_argv_;
+#endif
 };
 
 } // namespace muopt
