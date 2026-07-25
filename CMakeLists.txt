@@ -24,6 +24,7 @@ endif()
 
 option(MUOPT_BUILD_EXAMPLES "Build example programs" ${MUOPT_STANDALONE_PROJECT})
 option(MUOPT_BUILD_TESTS "Build test suite" ${MUOPT_STANDALONE_PROJECT})
+option(MUOPT_BUILD_FUZZ "Build fuzz targets" OFF)
 
 # ------------------------------------------------------------------------------
 # Examples
@@ -40,4 +41,12 @@ endif()
 if(MUOPT_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
+endif()
+
+# ------------------------------------------------------------------------------
+# Fuzz targets
+# ------------------------------------------------------------------------------
+
+if(MUOPT_BUILD_FUZZ)
+    add_subdirectory(fuzz)
 endif()
