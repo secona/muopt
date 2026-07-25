@@ -7,31 +7,69 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
-    name: ${{ matrix.build_type }}
-    runs-on: ubuntu-latest
+  test:
+    name: ${{ matrix.toolchain }} / ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        build_type: [Debug, Release]
+        build_type: [debug, release]
+        toolchain:
+          - macos-latest-clang
+          - ubuntu-latest-clang
+          - ubuntu-latest-gcc
+          - windows-latest-msvc
+          - windows-latest-clang
+          # these queue for a long time
+          # - macos-13-clang
+          # - windows-2019-msvc
+
+        include:
+          - toolchain: macos-latest-clang
+            os: macos-latest
+            c_compiler: clang
+            cxx_compiler: clang++
+
+          # - toolchain: macos-13-clang
+          #   os: macos-13
+          #   c_compiler: clang
+          #   cxx_compiler: clang++
+
+          - toolchain: ubuntu-latest-clang
+            os: ubuntu-latest
+            c_compiler: clang
+            cxx_compiler: clang++
+
+          - toolchain: ubuntu-latest-gcc
+            os: ubuntu-latest
+            c_compiler: gcc
+            cxx_compiler: g++
+
+          # - toolchain: windows-2019-msvc
+          #   os: windows-2019
+          #   c_compiler: cl
+          #   cxx_compiler: cl
+
+          - toolchain: windows-latest-msvc
+            os: windows-latest
+            c_compiler: cl
+            cxx_compiler: cl
+
+          - toolchain: windows-latest-clang
+            os: windows-latest
+            c_compiler: clang-cl
+            cxx_compiler: clang-cl
+            cmake_opts: -T ClangCL
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
 
-    - name: Set up CMake
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '4.1.2'
-
     - name: Configure CMake
-      run: |
-        cmake -B ${{ github.workspace }}/build \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DCMAKE_CXX_COMPILER=g++ \
-          -DCMAKE_C_COMPILER=gcc \
-          -DMUOPT_BUILD_TESTS=ON \
-          -DMUOPT_BUILD_EXAMPLES=ON
+      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMUOPT_BUILD_TESTS=ON ${{ matrix.cmake_opts }}
+      env:
+        CC: ${{ matrix.c_compiler }}
+        CXX: ${{ matrix.cxx_compiler }}
 
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
