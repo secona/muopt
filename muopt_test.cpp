@@ -1,14 +1,34 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 #include "muopt/muopt.hpp"
+#include <vector>
 
-#define MAKE_PARSER(n, ...)                                                    \
-  const char *n##_cargv[] = {"exe", __VA_ARGS__};                              \
-  int n##_argc = sizeof(n##_cargv) / sizeof(const char *);                     \
-  char *n##_argv[sizeof(n##_cargv) / sizeof(const char *)];                    \
-  for (int i = 0; i < n##_argc; ++i)                                           \
-    n##_argv[i] = const_cast<char *>(n##_cargv[i]);                            \
-  muopt::Parser n(n##_argc, n##_argv)
+// -----------------------------------------------------------------------------
+// Harness
+// -----------------------------------------------------------------------------
+
+template <typename Func>
+void muopt_execute_test(Func f, std::initializer_list<const char *> args) {
+  std::vector<char *> argv = {const_cast<char *>("exe")};
+  argv.reserve(args.size() + 1);
+  for (auto &s : args)
+    argv.push_back(const_cast<char *>(s));
+
+  muopt::Parser parser(argv.size(), argv.data());
+  f(parser);
+}
+
+#define MU_TEST_IMPL(name, ...)                                                \
+  static void name(muopt::Parser &);                                           \
+  TEST_CASE(#__VA_ARGS__) { muopt_execute_test(name, {__VA_ARGS__}); }         \
+  static void name(muopt::Parser &parser)
+
+#define MU_TEST(...)                                                           \
+  MU_TEST_IMPL(DOCTEST_ANONYMOUS(DOCTEST_MU_IMPL_), __VA_ARGS__)
+
+// -----------------------------------------------------------------------------
+// Asserts
+// -----------------------------------------------------------------------------
 
 #define MU_LONG(n) CHECK(parser.next()->is_long(n))
 #define MU_SHORT(n) CHECK(parser.next()->is_short(n))
@@ -27,152 +47,114 @@
 
 #define MU_END() CHECK_EQ(parser.next(), std::nullopt)
 
-TEST_CASE("--option") {
-  MAKE_PARSER(parser, "--option");
+// -----------------------------------------------------------------------------
+// Test cases
+// -----------------------------------------------------------------------------
 
+MU_TEST("--option") {
   MU_LONG_NO_VALUE("option");
   MU_END();
 }
 
-TEST_CASE("--option value") {
-  MAKE_PARSER(parser, "--option", "value");
-
+MU_TEST("--option", "value") {
   MU_LONG_WITH_VALUE("option", "value");
   MU_END();
 }
 
-TEST_CASE("--option=value") {
-  MAKE_PARSER(parser, "--option=value");
-
+MU_TEST("--option=value") {
   MU_LONG_WITH_VALUE("option", "value");
   MU_END();
 }
 
-TEST_CASE("--option=") {
-  MAKE_PARSER(parser, "--option=");
-
+MU_TEST("--option=") {
   MU_LONG_WITH_VALUE("option", "");
   MU_END();
 }
 
-TEST_CASE("--option --option2") {
-  MAKE_PARSER(parser, "--option", "--option2");
-
+MU_TEST("--option", "--option2") {
   MU_LONG_NO_VALUE("option");
   MU_LONG_NO_VALUE("option2");
   MU_END();
 }
 
-TEST_CASE("--option=value --option2") {
-  MAKE_PARSER(parser, "--option=value", "--option2");
-
+MU_TEST("--option=value", "--option2") {
   MU_LONG_WITH_VALUE("option", "value");
   MU_LONG_NO_VALUE("option2");
   MU_END();
 }
 
-TEST_CASE("--option=value=value2") {
-  MAKE_PARSER(parser, "--option=value=value2");
-
+MU_TEST("--option=value=value2") {
   MU_LONG_WITH_VALUE("option", "value=value2");
   MU_END();
 }
 
-TEST_CASE("-o") {
-  MAKE_PARSER(parser, "-o");
-
+MU_TEST("-o") {
   MU_SHORT_NO_VALUE('o');
   MU_END();
 }
 
-TEST_CASE("-ovalue") {
-  MAKE_PARSER(parser, "-ovalue");
-
+MU_TEST("-ovalue") {
   MU_SHORT_WITH_VALUE('o', "value");
   MU_END();
 }
 
-TEST_CASE("-o value") {
-  MAKE_PARSER(parser, "-o", "value");
-
+MU_TEST("-o", "value") {
   MU_SHORT_WITH_VALUE('o', "value");
   MU_END();
 }
 
-TEST_CASE("-o=value") {
-  MAKE_PARSER(parser, "-o=value");
-
+MU_TEST("-o=value") {
   MU_SHORT_WITH_VALUE('o', "value");
   MU_END();
 }
 
-TEST_CASE("-o -p") {
-  MAKE_PARSER(parser, "-o", "-p");
-
+MU_TEST("-o", "-p") {
   MU_SHORT_NO_VALUE('o');
   MU_SHORT_NO_VALUE('p');
   MU_END();
 }
 
-TEST_CASE("-opq") {
-  MAKE_PARSER(parser, "-opq");
-
+MU_TEST("-opq") {
   MU_SHORT('o');
   MU_SHORT('p');
   MU_SHORT('q');
   MU_END();
 }
 
-TEST_CASE("-opqrst") {
-  MAKE_PARSER(parser, "-opqrst");
-
+MU_TEST("-opqrst") {
   MU_SHORT('o');
   MU_SHORT('p');
   MU_SHORT_WITH_VALUE('q', "rst");
   MU_END();
 }
 
-TEST_CASE("value") {
-  MAKE_PARSER(parser, "value");
-
+MU_TEST("value") {
   MU_PLAIN("value");
   MU_END();
 }
 
-TEST_CASE("-") {
-  MAKE_PARSER(parser, "-");
-
+MU_TEST("-") {
   MU_PLAIN("-");
   MU_END();
 }
 
-TEST_CASE("file1.txt -v file2.txt") {
-  MAKE_PARSER(parser, "file1.txt", "-v", "file2.txt");
-
+MU_TEST("file1.txt", "-v", "file2.txt") {
   MU_PLAIN("file1.txt");
   MU_SHORT('v');
   MU_PLAIN("file2.txt");
   MU_END();
 }
 
-TEST_CASE("--") {
-  MAKE_PARSER(parser, "--");
+MU_TEST("--") { MU_END(); }
 
-  MU_END();
-}
-
-TEST_CASE("-- --help -c help") {
-  MAKE_PARSER(parser, "--", "--help", "-c", "help");
-
+MU_TEST("--", "--help", "-c", "help") {
   MU_PLAIN("--help");
   MU_PLAIN("-c");
   MU_PLAIN("help");
   MU_END();
 }
 
-TEST_CASE("-o=") {
-  MAKE_PARSER(parser, "-o=");
-
+MU_TEST("-o=") {
   MU_SHORT_WITH_VALUE('o', "");
   MU_END();
 }
