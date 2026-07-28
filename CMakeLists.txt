@@ -10,7 +10,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(muopt INTERFACE)
 add_library(muopt::muopt ALIAS muopt)
-target_include_directories(muopt INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(
+    muopt INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_compile_features(muopt INTERFACE cxx_std_17)
 
 # ------------------------------------------------------------------------------
@@ -50,3 +54,40 @@ endif()
 if(MUOPT_BUILD_FUZZ)
     add_subdirectory(fuzz)
 endif()
+
+# ------------------------------------------------------------------------------
+# Install & Package Export
+# ------------------------------------------------------------------------------
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/muoptConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/muoptConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/muopt
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/muoptConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(DIRECTORY include/muopt DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(TARGETS muopt EXPORT muoptTargets)
+
+install(
+    EXPORT muoptTargets
+    FILE muoptTargets.cmake
+    NAMESPACE muopt::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/muopt
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/muoptConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/muoptConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/muopt
+)
