@@ -12,8 +12,8 @@ int main(int argc, char **argv) {
 
   int verbosity = 0;
 
-  while (std::optional<muopt::Arg> arg = parser.next()) {
-    if (arg->is_short('v') || arg->is_long("verbose"))
+  while (muopt::Arg arg = parser.next()) {
+    if (arg.is_short('v') || arg.is_long("verbose"))
       verbosity++;
   }
 

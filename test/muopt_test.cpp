@@ -30,9 +30,9 @@ void muopt_execute_test(Func f, std::initializer_list<const char *> args) {
 // Asserts
 // -----------------------------------------------------------------------------
 
-#define MU_LONG(n) CHECK(parser.next()->is_long(n))
-#define MU_SHORT(n) CHECK(parser.next()->is_short(n))
-#define MU_PLAIN(n) CHECK(parser.next()->is_plain(n))
+#define MU_LONG(n) CHECK(parser.next().is_long(n))
+#define MU_SHORT(n) CHECK(parser.next().is_short(n))
+#define MU_PLAIN(n) CHECK(parser.next().is_plain(n))
 
 #define MU_LONG_WITH_VALUE(n, v)                                               \
   MU_LONG(n);                                                                  \
@@ -45,7 +45,7 @@ void muopt_execute_test(Func f, std::initializer_list<const char *> args) {
 #define MU_LONG_NO_VALUE(n) MU_LONG_WITH_VALUE(n, std::nullopt)
 #define MU_SHORT_NO_VALUE(n) MU_SHORT_WITH_VALUE(n, std::nullopt)
 
-#define MU_END() CHECK_EQ(parser.next(), std::nullopt)
+#define MU_END() CHECK_FALSE(parser.next())
 
 // -----------------------------------------------------------------------------
 // Test cases

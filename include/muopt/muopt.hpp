@@ -2,7 +2,6 @@
 #define MUOPT_MUOPT_HPP_
 
 #include <cassert>
-#include <cstdint>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -12,6 +11,7 @@ namespace muopt {
 class Arg {
 public:
   enum class Kind {
+    None,
     Short,
     Long,
     Plain,
@@ -36,19 +36,21 @@ public:
     return a;
   }
 
-  bool is_short() { return kind_ == Kind::Short; }
-  bool is_long() { return kind_ == Kind::Long; }
-  bool is_plain() { return kind_ == Kind::Plain; }
+  explicit operator bool() const { return kind_ != Kind::None; }
 
-  bool is_short(char c) { return is_short() && short_ == c; }
-  bool is_long(std::string_view n) { return is_long() && str_ == n; }
-  bool is_plain(std::string_view n) { return is_plain() && str_ == n; }
+  bool is_short() const { return kind_ == Kind::Short; }
+  bool is_long() const { return kind_ == Kind::Long; }
+  bool is_plain() const { return kind_ == Kind::Plain; }
 
-  char as_char() {
+  bool is_short(char c) const { return is_short() && short_ == c; }
+  bool is_long(std::string_view n) const { return is_long() && str_ == n; }
+  bool is_plain(std::string_view n) const { return is_plain() && str_ == n; }
+
+  char as_char() const {
     assert(is_short());
     return short_;
   }
-  std::string_view as_str() {
+  std::string_view as_str() const {
     assert(is_long() || is_plain());
     return str_;
   }
@@ -60,7 +62,7 @@ private:
   char short_;
   std::string_view str_;
 
-  Arg() = default;
+  Arg() : kind_(Kind::None), short_('\0'), str_() {}
 };
 
 class Parser {
@@ -75,7 +77,8 @@ public:
   Parser(int argc, char **argv)
       : argc_(argc), argv_(argv), index_(1), state_(State::None) {}
 
-  std::optional<Arg> next() {
+private:
+  std::optional<Arg> next_impl() {
     if (buffer_.has_value())
       return std::exchange(buffer_, std::nullopt);
 
@@ -104,7 +107,7 @@ public:
 
     if (arg_str == "--") {
       state_ = State::DoubleDashed;
-      return next();
+      return next_impl();
     }
 
     // match `--<option>`
@@ -143,6 +146,12 @@ public:
     return Arg::make_plain(arg_str);
   }
 
+public:
+  Arg next() {
+    auto maybe_arg = next_impl();
+    return maybe_arg.has_value() ? std::move(*maybe_arg) : Arg();
+  }
+
   std::optional<std::string_view> arg_value() {
     if (pending_val_.has_value()) {
       auto res = *pending_val_;
@@ -150,13 +159,13 @@ public:
       return res;
     }
 
-    auto maybe_value = next();
-    if (!maybe_value.has_value())
+    auto arg = next();
+    if (!arg)
       return {}; // TODO: maybe return error?
-    if (maybe_value->is_plain())
-      return maybe_value->as_str();
+    if (arg.is_plain())
+      return arg.as_str();
 
-    buffer_ = std::move(maybe_value);
+    buffer_ = std::move(arg);
     return {};
   }
 

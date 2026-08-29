@@ -17,9 +17,9 @@ int main(int argc, char **argv) {
 
   std::optional<std::string> command;
 
-  std::optional<muopt::Arg> arg = parser.next();
-  if (arg.has_value() && arg->is_plain()) {
-    command = arg->as_str();
+  muopt::Arg arg = parser.next();
+  if (arg && arg.is_plain()) {
+    command = arg.as_str();
   }
 
   if (!command.has_value()) {
@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
 
   if (*command == "build") {
     bool release = false;
-    while (std::optional<muopt::Arg> arg = parser.next()) {
-      if (arg->is_long("release"))
+    while (muopt::Arg arg = parser.next()) {
+      if (arg.is_long("release"))
         release = true;
     }
 
@@ -40,8 +40,8 @@ int main(int argc, char **argv) {
 
   if (*command == "run") {
     std::optional<std::string> port;
-    while (std::optional<muopt::Arg> arg = parser.next()) {
-      if (arg->is_long("port"))
+    while (muopt::Arg arg = parser.next()) {
+      if (arg.is_long("port"))
         port = parser.arg_value();
     }
 
@@ -50,10 +50,10 @@ int main(int argc, char **argv) {
   }
 
   if (*command == "test") {
-    std::optional<muopt::Arg> arg = parser.next();
+    muopt::Arg arg = parser.next();
     std::optional<std::string> directory;
-    if (arg.has_value() && arg->is_plain())
-      directory = arg->as_str();
+    if (arg && arg.is_plain())
+      directory = arg.as_str();
 
     std::cout << "running tests";
     if (directory.has_value())

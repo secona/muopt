@@ -15,18 +15,18 @@ int main(int argc, char **argv) {
   std::optional<std::string> name;
   std::optional<std::string> ask;
 
-  while (std::optional<muopt::Arg> arg = parser.next()) {
-    if (arg->is_plain()) {
+  while (muopt::Arg arg = parser.next()) {
+    if (arg.is_plain()) {
       if (!greeting.has_value())
-        greeting = arg->as_str();
+        greeting = arg.as_str();
     }
 
-    if (arg->is_short('n') || arg->is_long("name")) {
+    if (arg.is_short('n') || arg.is_long("name")) {
       if (!name.has_value())
         name = parser.arg_value();
     }
 
-    if (arg->is_short('a') || arg->is_long("ask")) {
+    if (arg.is_short('a') || arg.is_long("ask")) {
       if (!ask.has_value())
         ask = parser.arg_value();
     }
