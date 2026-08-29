@@ -2,7 +2,6 @@
 #define MUOPT_MUOPT_HPP_
 
 #include <cassert>
-#include <cstdlib>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -103,13 +102,10 @@ private:
   };
 
 public:
-  Parser(int argc, char **argv)
+  Parser(int argc, char **argv, bool is_process_args = true)
       : argc_(argc), argv_(argv), index_(1), state_(State::None) {
 #ifdef _WIN32
-    // Use the wide command line for the argv supplied by the CRT. This keeps
-    // Unicode arguments intact on Windows while still honoring custom argv
-    // arrays, which are useful for embedding and testing.
-    if (argv == __argv) {
+    if (is_process_args) {
       int wide_argc = 0;
       LPWSTR *wargv = CommandLineToArgvW(GetCommandLineW(), &wide_argc);
       if (!wargv)
@@ -127,7 +123,27 @@ public:
       argc_ = wide_argc;
       argv_ = wide_argv_.data();
     }
+#else
+    (void)is_process_args;
 #endif
+  }
+
+#ifdef _WIN32
+  Parser(int argc, wchar_t **argv)
+      : argc_(argc), argv_(nullptr), index_(1), state_(State::None) {
+    wide_args_.reserve(argc);
+    wide_argv_.reserve(argc);
+    for (int i = 0; i < argc; ++i) {
+      wide_args_.push_back(detail::wide_to_utf8(argv[i]));
+      wide_argv_.push_back(wide_args_.back().data());
+    }
+
+    argv_ = wide_argv_.data();
+  }
+#endif
+
+  static Parser from_raw_args(int argc, char **argv) {
+    return Parser(argc, argv, false);
   }
 
 private:

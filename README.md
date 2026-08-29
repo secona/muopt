@@ -32,6 +32,16 @@ int main(int argc, char **argv) {
 }
 ```
 
+On Windows, applications using `wmain` can pass its wide arguments directly to
+the corresponding `Parser` constructor:
+
+```cpp
+int wmain(int argc, wchar_t **argv) {
+  muopt::Parser parser(argc, argv);
+  // ...
+}
+```
+
 See the [examples](./examples) directory for more usage examples.
 
 ## Design

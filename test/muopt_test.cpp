@@ -14,7 +14,7 @@ void muopt_execute_test(Func f, std::initializer_list<const char *> args) {
   for (auto &s : args)
     argv.push_back(const_cast<char *>(s));
 
-  muopt::Parser parser(argv.size(), argv.data());
+  muopt::Parser parser(argv.size(), argv.data(), false);
   f(parser);
 }
 
