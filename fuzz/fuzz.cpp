@@ -30,14 +30,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   muopt::Parser parser(argc, argv);
 
   while (auto arg = parser.next()) {
-    if (arg->is_short()) {
-      (void)arg->as_char();
+    if (arg.is_short()) {
+      (void)arg.as_char();
       (void)parser.arg_value();
-    } else if (arg->is_long()) {
-      (void)arg->as_str();
+    } else if (arg.is_long()) {
+      (void)arg.as_str();
       (void)parser.arg_value();
-    } else if (arg->is_plain()) {
-      (void)arg->as_str();
+    } else if (arg.is_plain()) {
+      (void)arg.as_str();
     }
   }
 

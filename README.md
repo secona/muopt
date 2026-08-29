@@ -23,10 +23,10 @@ The following command line options are supported.
 int main(int argc, char **argv) {
   muopt::Parser parser(argc, argv);
 
-  while (std::optional<muopt::Arg> arg = parser.next()) {
-    if (arg->is_long("help"))
+  while (muopt::Arg arg = parser.next()) {
+    if (arg.is_long("help"))
       std::cout << "usage: example [--input FILE]\n";
-    if (arg->is_long("input"))
+    if (arg.is_long("input"))
       std::cout << parser.arg_value().value_or("") << '\n';
   }
 }
@@ -41,7 +41,7 @@ the parser, the `-` and `--` prefix determines the kind and not some coupling im
 
 1. The parser is created by instantiating `muopt::Parser` with `argc` and `argv`.
 2. `next()` returns the next argument as a Short, Long, or Plain.
-3. `next()` returns `std::nullopt` when args are exhausted.
+3. `next()` returns an invalid `Arg` when args are exhausted; it can be tested in a boolean context.
 4. `arg_value()` returns the string of the next Plain, if a Plain is next in line, consuming it and making it unavailable to the next `next()` call.
 5. `arg_value()` returns `std::nullopt` otherwise. The non-Plain argument is not consumed; the next `next()` call will still see it.
 
