@@ -15,6 +15,11 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+if(WIN32)
+    target_link_libraries(muopt INTERFACE shell32)
+endif()
+
 target_compile_features(muopt INTERFACE cxx_std_17)
 
 # ------------------------------------------------------------------------------
@@ -45,6 +50,7 @@ endif()
 if(MUOPT_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
+    add_subdirectory(e2e)
 endif()
 
 # ------------------------------------------------------------------------------

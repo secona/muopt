@@ -158,3 +158,28 @@ MU_TEST("-o=") {
   MU_SHORT_WITH_VALUE('o', "");
   MU_END();
 }
+
+MU_TEST("--café:re") {
+  MU_LONG_NO_VALUE("café:re");
+  MU_END();
+}
+
+MU_TEST("--name=Übel") {
+  MU_LONG_WITH_VALUE("name", "Übel");
+  MU_END();
+}
+
+MU_TEST("--テスト") {
+  MU_LONG_NO_VALUE("テスト");
+  MU_END();
+}
+
+MU_TEST("こんにちは") {
+  MU_PLAIN("こんにちは");
+  MU_END();
+}
+
+MU_TEST("--π=3.14") {
+  MU_LONG_WITH_VALUE("π", "3.14");
+  MU_END();
+}
